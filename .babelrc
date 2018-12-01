@@ -1,0 +1,11 @@
+//transpiler - it translates and compiles code
+//presets is a way to give babel info how to interprate
+
+{
+  "presets": ["react", "es2015"],
+  "env": {
+    "development": {
+      "presets": ["react-hmre"]
+    }
+  }
+}
