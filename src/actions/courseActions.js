@@ -8,11 +8,11 @@ export function loadCoursesSuccess(courses) {
 
 export const createCourseSuccess = (course) => {
   return { type: types.CREATE_COURSE_SUCCESS, course: course};
-}
+};
 
 export const updateCourseSuccess = (course) => {
   return { type: types.UPDATE_COURSE_SUCCESS, course: course};
-}
+};
 
 //thunk -> returns function
 export function loadCourses() {
