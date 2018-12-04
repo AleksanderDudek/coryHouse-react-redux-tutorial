@@ -1,27 +1,95 @@
-import React, { PropTypes } from 'react'
+import React, { PropTypes } from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import * as courseActions from '../../actions/courseActions';
+import CourseForm from './CourseForm';
 
  class ManageCoursePage extends React.Component {
   constructor(props, context) {
     super(props, context);
+
+    this.state = {
+      course: Object.assign({}, this.props.course),
+      errors: {}
+    };
+
+    this.updateCourseState = this.updateCourseState.bind(this);
+    this.saveCourse = this.saveCourse.bind(this);
+  }
+
+  //called each time props change on the component
+  componentWillReceiveProps(nextProps) {
+    if (this.props.course.id != nextProps.course.id) {
+      this.setState({course: Object.assign({}, nextProps.course)});
+    }
+  }
+
+  updateCourseState(event) {
+    const field = event.target.name;
+    // const stateCourse = this.state.course;
+    let course = Object.assign({}, this.state.course);
+    course[field] = event.target.value;
+    return this.setState({course: course});
+  }
+
+  saveCourse(event) {
+    event.preventDefault();
+    this.props.actions.saveCourse(this.state.course);
+    this.context.router.push('/courses');
   }
 
   render() {
     return (
-      <h1>Manage Course</h1>
+      <div>
+        {/* <h1>Manage Course</h1> */}
+        <CourseForm
+        allAuthors={this.props.authors}
+        course={this.state.course}
+        errors={this.state.errors}
+        onChange={this.updateCourseState}
+        onSave={this.saveCourse} />
+      </div>
     );
   }
 }
 
-ManageCoursePage.PropTypes = {
+ManageCoursePage.propTypes = {
+  course: PropTypes.object.isRequired,
+  authors: PropTypes.array.isRequired,
+  actions: PropTypes.object.isRequired
+};
 
+ManageCoursePage.contextTypes = {
+  router: PropTypes.object
+};
+
+function getCourseById(courses, id) {
+  const course = courses.filter(course => course.id == id);
+  if (course) return course[0]; //filter returns array, that's way
+  return null;
 }
 
+//ownProps is reference to this component's props
 function mapStateToProps(state, ownProps) {
+  const courseId = ownProps.params.id; //from path '/course/:id'
+
+  let course = {id: '', watchHref: '', title: '',
+                authorId: '', length: '', category: ''};
+
+  if (courseId && state.courses.length > 0) {
+    course = getCourseById(state.courses, courseId);
+  }
+
+  const authorsFormattedForDropdown = state.authors.map(author => {
+    return {
+      value: author.id,
+      text: author.firstName + ' ' + author.lastName
+    };
+  });
+
   return {
-    state: state
+    course: course,
+    authors: authorsFormattedForDropdown
   };
 }
 
